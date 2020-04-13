@@ -239,7 +239,7 @@ fit <- survfit(Surv(Days.post.eclosion,Shaking.effect)
 
 
 ### survival plot - number of shaking events over time
-
+###https://rpkgs.datanovia.com/survminer/reference/ggsurvplot.html
 ###strata lines
 Figure2=ggsurvplot(fit, data = data3_double_only,
  pval = FALSE,

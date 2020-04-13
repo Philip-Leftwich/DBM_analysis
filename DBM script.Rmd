@@ -204,6 +204,9 @@ geom_bar(position="dodge", stat="identity")+
   ###specify colours
   scale_fill_manual(values=pal1)
 
+
+###cowplot to arrange figures
+library(cowplot)
 Figure1=plot_grid(p1, p2, p3,p4,p5,p6, nrow=2, labels=c("A","B","C","D","E","F"))
 
 ```
@@ -228,27 +231,35 @@ data3_double_only=subset(data3, Fluorescence=="Green+Red")
 
 str(data3_double_only)
 
+
 ### basic survival fit
+library(survival)
 fit <- survfit(Surv(Days.post.eclosion,Shaking.effect)
  ~ Line+Sex, data = data3_double_only)
 
 
 ### survival plot - number of shaking events over time
 
-p7=ggsurvplot(fit, data = data3_double_only,
+Figure2=ggsurvplot(fit, data = data3_double_only,
  pval = FALSE,
  fun="event",
  risk.table = TRUE,
  linetype = c("strata"), 
+ xlim=c(1,8),
+ ylim=c(0,1),
+ break.y.by=c(0.2),
+ break.x.by=c(1),
  conf.int = FALSE,
  xlab="Time (days)", ### change to time in days
- ylab="Cumulative number of shaking moths",
+ ylab="Cumulative proportion shaking",
  risk.table.y.text = FALSE, ###no text for risk table,
 legend.labs=c("HR5/IE1 Female", "HR5/IE1 Male", "OP/IE2 Female","OP/IE2 Male"),
 palette=c("#FF0000", "#00A08A", "#D69C4E", "#000000") ###Darjeeling 2
 )
 
+p=Figure2+scale_y_continuous(breaks = c(0,0.2,0.4))
 
+p=Figure2+scale_y_continuous(breaks = c("0.00" = 0, "0.25"= 0.25, "0.50" = 0.5, "0.75" = 0.75, "1.00"= 1))
 
 ###cox's proportional hazards fit
 

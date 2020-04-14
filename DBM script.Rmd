@@ -47,8 +47,8 @@ resadult_Opiontet=chisq.test(adult_Opiontet, p=c(1/4, 1/4, 1/4, 1/4))
 resadult_Opiontet
 
 adult_Opiofftet=c(143,155,134,122)
-resadult_Opiontet=chisq.test(adult_Opiontet, p=c(1/4, 1/4, 1/4, 1/4))
-resadult_Opiontet
+resadult_Opiofftet=chisq.test(adult_Opiofftet, p=c(1/4, 1/4, 1/4, 1/4))
+resadult_Opiofftet
 
 ###shaking adult
 
@@ -147,8 +147,7 @@ geom_bar(position="dodge", stat="identity")+
   ###no legend
 
 
-###cowplot to arrange figures
-Figure1=plot_grid(p1, p2, p3, nrow=1, labels=c("A","B","C"))
+
 
 ###OPIE2
 opi_data1=subset(data1,Line=="OP/IE2")
@@ -208,7 +207,7 @@ geom_bar(position="dodge", stat="identity")+
 ###cowplot to arrange figures
 library(cowplot)
 Figure1=plot_grid(p1, p2, p3,p4,p5,p6, nrow=2, labels=c("A","B","C","D","E","F"))
-
+Figure1
 ```
 
 
@@ -241,23 +240,7 @@ fit <- survfit(Surv(Days.post.eclosion,Shaking.effect)
 ### survival plot - number of shaking events over time
 ###https://rpkgs.datanovia.com/survminer/reference/ggsurvplot.html
 ###strata lines
-Figure2=ggsurvplot(fit, data = data3_double_only,
- pval = FALSE,
- fun="event",
- risk.table = TRUE,
- 
- xlim=c(1,8),
- ylim=c(0,1),
- break.y.by=c(0.2),
- break.x.by=c(1),
- conf.int = FALSE,
- xlab="Days post eclosion", ### change to time in days
- ylab="Cumulative proportion shaking",
- risk.table.y.text = FALSE,###no text for risk table
- risk.table.title="Number not shaking",
-legend.labs=c("Hr5/ie1>AaHIT Female", "Hr5/ie1>AaHIT Male","Op/ie2>AaHIT Female","Op/ie2>AaHIT Male"),
-palette=c("#FF0000", "#00A08A", "#D69C4E", "#000000") ###Darjeeling 2
-)
+
 
 Figure2=ggsurvplot(fit, data = data3_double_only,
  pval = FALSE,
@@ -275,15 +258,18 @@ Figure2=ggsurvplot(fit, data = data3_double_only,
  risk.table.title="Number not shaking",
 legend.labs=c("Hr5/ie1>AaHIT Female", "Hr5/ie1>AaHIT Male","Op/ie2>AaHIT Female","Op/ie2>AaHIT Male"),
 palette= "npg",
-size=0.5,
+size=1.2,
 font.legend="italic",
 censor.shape=""
 ###Darjeeling 2
 )+
    guides(color = guide_legend(keywidth = 2, keyheight = 1.8,override.aes = list(shape = NA)))
-  
-  
 
+Figure2
+
+```  
+  
+```{r}
 ###cox's proportional hazards fit
 
 fit1 <- coxph(Surv(Days.post.eclosion, Shaking.effect) ~ Line+Sex, data = data3_double_only)
@@ -371,17 +357,29 @@ str(longevity)
 lifespan <- survfit(Surv(Lifespan)~ Treatment+Sex, data = longevity)
 
 ### survival plot
-p10=ggsurvplot(lifespan, data = longevity,
+Figure5=ggsurvplot(lifespan, data = longevity,
  pval = FALSE,
  risk.table = TRUE,
  size = 1,
  linetype = c("strata"), 
+ break.x.by=c(5),
+ break.y.by=c(0.2),
  conf.int = FALSE,
- xlab="Time (days)", ### change to time in days
+  risk.table.title="Number alive",
+ xlab="Days post eclosion", ### change to time in days
  risk.table.y.text = FALSE, ###no text for risk table,
-legend.labs=c("Female off-tet", "Male off-tet", "Female on-tet","Male on-tet"),
-palette=c("#FF0000", "#00A08A", "#F2AD00","#5BBCD6") ###Darjeeling 1
-)
+legend.labs=c("Female, Hr5/ie1>AaHIT, off-tet", "Male, Hr5/ie1>AaHIT, off-tet", "Female, Hr5/ie1>AaHIT, on-tet","Male, Hr5/ie1>AaHIT, on-tet"),
+palette=c("#FF0000", "#00A08A", "#F2AD00","#5BBCD6"),
+size=1.2,
+font.legend="italic",
+censor.shape="",
+
+)+
+     guides(color = guide_legend(keywidth = 2, keyheight = 1.8,override.aes = list(shape = NA)))
+
+
+
+
 
 ###cox's proportional hazards fit
 

@@ -19,10 +19,6 @@ library(ggforce)
 library(ggsignif)
 library(survival)
 library(survminer)
-library(sjPlot)
-library(sjlabelled)
-library(sjmisc)
-library(wesanderson)
 library(ggpol)
 library(patchwork)
 
@@ -224,6 +220,9 @@ str(data3)
 data3$Line=as.factor(data3$Line)
 data3$Fluorescence=as.factor(data3$Fluorescence)
 
+#####
+data3$Days.post.eclosion=(data3$Days.post.eclosion-1)
+#### changed here as apparently day 0 was day in cage and day 1 was the first eclosion date, so evrything shifted down by 1 to accommodate, does not change any of the analyses. 
 
 #### double hets only!
 data3_double_only=subset(data3, Fluorescence=="Green+Red")
@@ -247,7 +246,7 @@ Figure2=ggsurvplot(fit, data = data3_double_only,
  fun="event",
  risk.table = TRUE,
  linetype = c("strata"), 
- xlim=c(1,8),
+ xlim=c(1,7),
  ylim=c(0,1),
  break.y.by=c(0.2),
  break.x.by=c(1),
@@ -405,7 +404,8 @@ lifespan3 <- coxph(Surv(Lifespan) ~ CoxTreatment*Sex, data = longevity)
 
 plot_summs(lifespan3)
 
-
+library(dotwhisker)
+library(broom)
 
  dwplot(list(lifespan1, lifespan2)) ### compare different model intercepts
 
@@ -418,17 +418,8 @@ ggcoxdiagnostics(lifespan2,
 
 
 ```
-```{r}
-## patchwork doesnt work on these objects
-splots <- list()
-splots[[1]] <- p3
-splots[[2]] <- p4
 
-# Arrange multiple ggsurvplots and print the output
-arrange_ggsurvplots(splots,
-  ncol = 2, nrow = 1, risk.table.height = 0.2)
 
-```
 
 
 ```{r}

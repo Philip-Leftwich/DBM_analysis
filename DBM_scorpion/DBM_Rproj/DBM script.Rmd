@@ -1,0 +1,407 @@
+---
+title: "DBM scorpion analysis"
+author: "Phil leftwich"
+date: "30/01/2020"
+output: html_document
+---
+
+```{r}
+ library(tidyverse)
+library(lme4)
+ library(MuMIn)
+ library(lmerTest)
+ library(piecewiseSEM)
+ library(multcomp)
+ library(lsmeans)
+library(multcompView)
+ library(ggplot2)
+library(ggforce)
+library(ggsignif)
+library(survival)
+library(survminer)
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(wesanderson)
+library(ggpol)
+library(patchwork)
+
+https://rpkgs.datanovia.com/survminer/survminer_cheatsheet.pdf
+
+```
+
+All the chi square data
+```{r}
+###pupae
+Opiontet=c(131,133,132,135)
+resopiontet=chisq.test(Opiontet, p=c(1/4, 1/4, 1/4, 1/4))
+resopiontet
+
+Opiofftet=c(152,157,138,122)
+resopiofftet=chisq.test(Opiofftet, p=c(1/4, 1/4, 1/4, 1/4))
+resopiofftet
+
+###adult
+adult_Opiontet=c(131,128,130,133)
+resadult_Opiontet=chisq.test(adult_Opiontet, p=c(1/4, 1/4, 1/4, 1/4))
+resadult_Opiontet
+
+adult_Opiofftet=c(143,155,134,122)
+resadult_Opiontet=chisq.test(adult_Opiontet, p=c(1/4, 1/4, 1/4, 1/4))
+resadult_Opiontet
+
+###shaking adult
+
+shakeadult_opiofftet=c(0,0,69,0)
+resshakeadult_opiofftet=chisq.test(shakeadult_opiofftet, p=c(1/4, 1/4, 1/4, 1/4))
+resshakeadult_opiofftet
+
+shakeadult_opiontet=c(0,0,0,0) ###cannot analyse as all zero! 
+
+
+###pupae
+pupae_Hr5ontet=c(152,118,135,115)
+respupae_Hr5ontet=chisq.test(pupae_Hr5ontet, p=c(1/4, 1/4, 1/4, 1/4))
+respupae_Hr5ontet
+
+pupae_Hr5offtet=c(244,288,266,268)
+reshr5offtet=chisq.test(pupae_Hr5offtet, p=c(1/4, 1/4, 1/4, 1/4))
+reshr5offtet
+
+###adult
+adult_Hr5ontet=c(143,115,119,109)
+resadult_Hr5ontet=chisq.test(adult_Hr5ontet, p=c(1/4, 1/4, 1/4, 1/4))
+resadult_Hr5ontet
+
+adult_Hr5offtet=c(228,274,243,231)
+resadult_Hr5offtet=chisq.test(adult_Hr5offtet, p=c(1/4, 1/4, 1/4, 1/4))
+resadult_Hr5offtet
+
+###shaking adult
+
+shakeadult_Hr5offtet=c(0,0,182,0)
+resshakeadult_Hr5offtet=chisq.test(shakeadult_Hr5offtet, p=c(1/4, 1/4, 1/4, 1/4))
+resshakeadult_Hr5offtet
+
+```
+
+Graphs of Pupae, Adult and total shaking numbers
+```{r}
+data1=read.csv("Data/chi_sq.csv")
+data1$Treatment <- factor(data1$Treatment, levels =c("on-tet","off-tet"))
+data1$Transgenes = factor(data1$Transgenes, levels=c("Green", "Red", "None", "Green+Red"))
+
+hr5_data1=subset(data1,Line=="HR5/IE1")
+
+pal1=c("#00A08A","#FF0000","#D3DDDC","#35274A")
+
+p1=ggplot(hr5_data1, aes(fill=Transgenes, y=Pupae, x=Treatment))+
+geom_bar(position="dodge", stat="identity")+
+theme(text=element_text(size=12),legend.title = element_text(size = 12),legend.text = element_text(size=12))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  ###add border edges
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+### make bar sit at zero and get more regular tick marks
+ scale_y_continuous(expand = c(0,0), breaks=seq(0,400, 50)) +
+    geom_text(aes(x=1, y=10.3, label=""), vjust=-1)+
+  ###set ylim 
+  coord_cartesian(ylim=c(0, 300))+
+  ### change x axis
+  labs(x="", y="Number of Pupae")+
+  ###specify colours
+  scale_fill_manual(values=pal1)+
+  ###no legend
+ theme(legend.position="none")
+p1
+
+p2=ggplot(hr5_data1, aes(fill=Transgenes, y=Adult, x=Treatment))+
+geom_bar(position="dodge", stat="identity")+
+  theme(text=element_text(size=12),legend.title = element_text(size = 12),legend.text = element_text(size=12))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  ###add border edges
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+### make bar sit at zero and get more regular tick marks
+ scale_y_continuous(expand = c(0,0), breaks=seq(0,400,400)) +
+    geom_text(aes(x=1, y=10.3, label=""), vjust=-1)+
+  ###set ylim 
+  coord_cartesian(ylim=c(0, 300))+
+  ### change x axis
+  labs(x="", y="Number of Adults")+
+  ###specify colours
+  scale_fill_manual(values=pal1)+
+  ###no legend
+ theme(legend.position="none")
+
+p3=ggplot(hr5_data1, aes(fill=Transgenes, y=Shaking, x=Treatment))+
+geom_bar(position="dodge", stat="identity")+
+  theme(text=element_text(size=12),legend.title = element_text(size = 12),legend.text = element_text(size=12))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  ###add border edges
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+### make bar sit at zero and get more regular tick marks
+ scale_y_continuous(expand = c(0,0), breaks=seq(0,400,400)) +
+    geom_text(aes(x=1, y=10.3, label=""), vjust=-1)+
+  ###set ylim 
+  coord_cartesian(ylim=c(0, 300))+
+  ### change x axis
+  labs(x="", y="Number of Shaking Adults")+
+  ###specify colours
+  scale_fill_manual(values=pal1)
+  ###no legend
+
+
+###cowplot to arrange figures
+Figure1=plot_grid(p1, p2, p3, nrow=1, labels=c("A","B","C"))
+
+###OPIE2
+opi_data1=subset(data1,Line=="OP/IE2")
+
+
+p4=ggplot(opi_data1, aes(fill=Transgenes, y=Pupae, x=Treatment))+
+geom_bar(position="dodge", stat="identity")+
+theme(text=element_text(size=12),legend.title = element_text(size = 12),legend.text = element_text(size=12))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  ###add border edges
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+### make bar sit at zero and get more regular tick marks
+ scale_y_continuous(expand = c(0,0), breaks=seq(0,400, 50)) +
+    geom_text(aes(x=1, y=10.3, label=""), vjust=-1)+
+  ###set ylim 
+  coord_cartesian(ylim=c(0, 300))+
+  ### change x axis
+  labs(x="", y="Number of Pupae")+
+  ###specify colours
+  scale_fill_manual(values=pal1)+
+  ###no legend
+ theme(legend.position="none")
+
+
+p5=ggplot(opi_data1, aes(fill=Transgenes, y=Adult, x=Treatment))+
+geom_bar(position="dodge", stat="identity")+
+  theme(text=element_text(size=12),legend.title = element_text(size = 12),legend.text = element_text(size=12))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  ###add border edges
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+### make bar sit at zero and get more regular tick marks
+ scale_y_continuous(expand = c(0,0), breaks=seq(0,400,400)) +
+    geom_text(aes(x=1, y=10.3, label=""), vjust=-1)+
+  ###set ylim 
+  coord_cartesian(ylim=c(0, 300))+
+  ### change x axis
+  labs(x="", y="Number of Adults")+
+  ###specify colours
+  scale_fill_manual(values=pal1)+
+  ###no legend
+ theme(legend.position="none")
+
+p6=ggplot(opi_data1, aes(fill=Transgenes, y=Shaking, x=Treatment))+
+geom_bar(position="dodge", stat="identity")+
+  theme(text=element_text(size=12),legend.title = element_text(size = 12),legend.text = element_text(size=12))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  ###add border edges
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+### make bar sit at zero and get more regular tick marks
+ scale_y_continuous(expand = c(0,0), breaks=seq(0,400,400)) +
+    geom_text(aes(x=1, y=10.3, label=""), vjust=-1)+
+  ###set ylim 
+  coord_cartesian(ylim=c(0, 300))+
+  ### change x axis
+  labs(x="", y="Number of Shaking Adults")+
+  ###specify colours
+  scale_fill_manual(values=pal1)
+
+Figure1=plot_grid(p1, p2, p3,p4,p5,p6, nrow=2, labels=c("A","B","C","D","E","F"))
+
+```
+
+
+```{r}
+
+
+
+### off tet double hets comparing the two promoters and sex differences 
+### have not added all the Hr5 data for wt, Green and Red! 
+
+data3=read.csv("Data/Book2.csv")
+
+str(data3)
+data3$Line=as.factor(data3$Line)
+data3$Fluorescence=as.factor(data3$Fluorescence)
+
+
+#### double hets only!
+data3_double_only=subset(data3, Fluorescence=="Green+Red")
+
+str(data3_double_only)
+
+### basic survival fit
+fit <- survfit(Surv(Days.post.eclosion,Shaking.effect)
+ ~ Line+Sex, data = data3_double_only)
+
+
+### survival plot - number of shaking events over time
+
+p7=ggsurvplot(fit, data = data3_double_only,
+ pval = FALSE,
+ fun="event",
+ risk.table = TRUE,
+ linetype = c("strata"), 
+ conf.int = FALSE,
+ xlab="Time (days)", ### change to time in days
+ ylab="Cumulative number of shaking moths",
+ risk.table.y.text = FALSE, ###no text for risk table,
+legend.labs=c("HR5/IE1 Female", "HR5/IE1 Male", "OP/IE2 Female","OP/IE2 Male"),
+palette=c("#FF0000", "#00A08A", "#D69C4E", "#000000") ###Darjeeling 2
+)
+
+
+
+###cox's proportional hazards fit
+
+fit1 <- coxph(Surv(Days.post.eclosion, Shaking.effect) ~ Line+Sex, data = data3_double_only)
+summary(fit1)
+### confidence interval cox's p hazards figure
+ggforest(fit1)
+
+#### look at Line+Sex or Line*Sex?
+
+### works ok - residuals of coxph fit model
+ggcoxdiagnostics(fit1,
+                 type = "deviance",
+                  ox.scale = "linear.predictions")
+
+###how long were non-shakers kept? Can I extend x-axis?
+
+
+ftest=cox.zph(fit1)
+ftest
+
+```
+
+```{r}
+###datasheet for Hr5 egg laying
+
+egghatch=read.csv("Data/egg_hatch.csv")
+egghatch
+str(egghatch)
+hatchrate=cbind(egghatch$Eggs.laid,egghatch$Eggs.unhatched)
+Eggs.hatched=(egghatch$Eggs.laid-egghatch$Eggs.unhatched)
+
+plot(Eggs.laid/Eggs.hatched~Treatment, egghatch)
+
+###Line 15 of eggs laid vs. hatched there is a typo 12 eggs hatched only 11 laid. Query this with Tim. 
+
+
+```
+
+```{r}
+###overdispersion residual deviance/df - should be close to 1 if good (0.8-1.2) 388/51 = overdispersed
+
+mod1=glm(hatchrate~Treatment,data=egghatch,quasibinomial)
+summary(mod1)
+rsquared(mod1)
+plot(mod1)
+```
+
+
+
+```{r}
+
+### eggs laid only - not sure if needed as ran the cibnd analysis above so somewhat repetitive. 
+
+plot(Eggs.laid~Treatment, egghatch)
+
+mod2=glm(Eggs.laid~Treatment,data=egghatch, family=quasipoisson)
+summary(mod2)
+
+
+egghatch$Treatment <- factor(egghatch$Treatment, levels =c("on-tet","off-tet"))
+
+  
+pal=c("#3B9AB2","#EBCC2A")
+ 
+p8=ggplot(data=egghatch, aes(x = Treatment, y = Eggs.laid, fill=Treatment))+     theme(legend.position="none")+theme(text=element_text(size=22))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+geom_boxjitter(jitter.color=NA,jitter.shape=21, outlier.shape = NA)+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+labs(y="Number of eggs laid", x="")+
+
+scale_fill_manual(values=pal)
+  
+p9=ggplot(data=egghatch, aes(x = Treatment, y = (Eggs.hatched/Eggs.laid), fill=Treatment))+     theme(legend.position="none")+theme(text=element_text(size=22))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+geom_boxjitter(jitter.color=NA,jitter.shape=21, outlier.shape = NA)+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+labs(y="Proportion of eggs hatched", x="")+
+
+scale_fill_manual(values=pal)
+
+(p8|p9) ###using patchwork to easily arrange plots
+  
+```
+
+
+```{r}
+longevity=read.csv("Data/longevity.csv")
+longevity
+str(longevity)
+
+lifespan <- survfit(Surv(Lifespan)~ Treatment+Sex, data = longevity)
+
+### survival plot
+p10=ggsurvplot(lifespan, data = longevity,
+ pval = FALSE,
+ risk.table = TRUE,
+ size = 1,
+ linetype = c("strata"), 
+ conf.int = FALSE,
+ xlab="Time (days)", ### change to time in days
+ risk.table.y.text = FALSE, ###no text for risk table,
+legend.labs=c("Female off-tet", "Male off-tet", "Female on-tet","Male on-tet"),
+palette=c("#FF0000", "#00A08A", "#F2AD00","#5BBCD6") ###Darjeeling 1
+)
+
+###cox's proportional hazards fit
+
+CoxTreatment=factor(longevity$Treatment, levels=c("on-tet", "off-tet")) ###change order for intercept
+
+lifespan1 <- coxph(Surv(Lifespan) ~ CoxTreatment+Sex, data = longevity)
+summary(lifespan1)
+extractAIC(lifespan1)
+
+lifespan2 <- coxph(Surv(Lifespan) ~ Treatment*Sex, data = longevity)
+summary(lifespan2)
+extractAIC(lifespan2)
+
+###AIC fits are barely different
+
+
+### confidence interval cox's p hazards figure
+ggforest(lifespan2)
+### won't plot interaction term!!!! Might have to do it manually. 
+
+library(jtools) ### estimates builder - but needs a lot of work to make it look nice! 
+lifespan3 <- coxph(Surv(Lifespan) ~ CoxTreatment*Sex, data = longevity)
+
+plot_summs(lifespan3)
+
+
+
+ dwplot(list(lifespan1, lifespan2)) ### compare different model intercepts
+
+### works ok - residuals of coxph fit model
+ggcoxdiagnostics(lifespan2,
+                 type = "deviance",
+                  ox.scale = "linear.predictions")
+
+
+
+
+```
+```{r}
+## patchwork doesnt work on these objects
+splots <- list()
+splots[[1]] <- p3
+splots[[2]] <- p4
+
+# Arrange multiple ggsurvplots and print the output
+arrange_ggsurvplots(splots,
+  ncol = 2, nrow = 1, risk.table.height = 0.2)
+
+```
+
+
+```{r}
+
+### uses beeswarm and viridis colours
+
+    
+ggplot(data=egghatch, aes(x = Treatment, y = Eggs.laid, color=Treatment)) +geom_sina(stat="sina", position="dodge", kernel="gaussian", method="density", aes(colour=Treatment))+theme(legend.position = "none")+stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.7,size=0.3)+theme(legend.position="none")+theme(text=element_text(size=22))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))
+
+```

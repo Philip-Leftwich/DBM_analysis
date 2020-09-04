@@ -314,7 +314,8 @@ plot(Eggs.laid/Eggs.hatched~Treatment, egghatch)
 
 ###Line 15 of eggs laid vs. hatched there is a typo 12 eggs hatched only 11 laid. Query this with Tim. 
 
-egghatch15 <- egghatch[-c(14)]
+egghatch14  <- egghatch[-c(14),]
+hatchrate=cbind(egghatch14$Eggs.hatched,egghatch14$Eggs.unhatched)
 
 ```
 
@@ -323,7 +324,7 @@ egghatch15 <- egghatch[-c(14)]
 
 
 
-mod1=glm(hatchrate~Treatment,data=egghatch,quasibinomial)
+mod1=glm(hatchrate~Treatment,data=egghatch14,quasibinomial)
 summary(mod1)
 rsquared(mod1)
 plot(mod1)
@@ -335,9 +336,9 @@ plot(mod1)
 
 ### eggs laid only - not sure if needed as ran the cibnd analysis above so somewhat repetitive. 
 
-plot(Eggs.laid~Treatment, egghatch15)
+plot(Eggs.laid~Treatment, egghatch14)
 
-mod2=glm(Eggs.laid~Treatment,data=egghatch, family=quasipoisson)
+mod2=glm(Eggs.laid~Treatment,data=egghatch14, family=quasipoisson)
 summary(mod2)
 
 
@@ -446,3 +447,40 @@ ggcoxdiagnostics(lifespan2,
     
 ggplot(data=egghatch, aes(x = Treatment, y = Eggs.laid, color=Treatment)) +geom_sina(stat="sina", position="dodge", kernel="gaussian", method="density", aes(colour=Treatment))+theme(legend.position = "none")+stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.7,size=0.3)+theme(legend.position="none")+theme(text=element_text(size=22))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))
 ```
+
+
+
+
+
+```{r}
+expression=read.csv("Raw_qPCR.csv")
+
+p <- expression %>%
+  mutate(life_stage = fct_relevel(life_stage, 
+            "L2","L4","Pupae","3DPE"))
+plot <- ggplot(aes(x = life_stage, y = relative_quantification_values), data=p)+ 
+geom_sina(stat="sina", position="dodge", kernel="gaussian", method="density", size=2, aes())+theme(legend.position = "none")+
+  stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.5,size=0.2)+
+  theme(legend.position="none")+
+  theme(text=element_text(size=22))+
+  theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  theme(axis.text.x = element_text(angle = 60, hjust =1))+
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+  labs(y="Normalized Relative Quantity \n (NRQ)", x="")+
+  annotate("text", size=5, label = "a", x = 1, y = 2.5)+
+  annotate("text", size=5, label = "ab", x = 2, y = 2.5)+
+  annotate("text", size=5, label = "ab", x = 3, y = 2.5)+
+  annotate("text", size=5, label = "bc", x = 4, y = 2.5)+
+  theme_cowplot()
+  
+
+
+m1 <- lm(rank(relative_quantification_values)~life_stage, data=p)
+m2 <- glht(m1, linfct=mcp(life_stage="Tukey"))
+
+library(sjPlot)
+tab_model(m1)
+
+```
+
+

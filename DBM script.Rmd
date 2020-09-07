@@ -278,6 +278,7 @@ Figure3
 ```
 
 ```{r}
+### export as tiff file to manuscript size and dpi requirements
 tiff("Figure3.tiff", height = 4.09, width = 7.4, units = 'in', 
      compression = "lzw", res = 1200)
 Figure3
@@ -323,7 +324,7 @@ Eggs.hatched=(egghatch$Eggs.laid-egghatch$Eggs.unhatched)
 
 plot(Eggs.laid/Eggs.hatched~Treatment, egghatch)
 
-###Line 15 of eggs laid vs. hatched there is a typo 12 eggs hatched only 11 laid. Query this with Tim. 
+###Line 15 of eggs laid vs. hatched there is a typo 12 eggs hatched only 11 laid. Remove this datapoint from all analysis as in error 
 
 egghatch14  <- egghatch[-c(14),]
 hatchrate=cbind(egghatch14$Eggs.hatched,egghatch14$Eggs.unhatched)
@@ -362,7 +363,8 @@ p8=ggplot(data=egghatch14, aes(x = Treatment, y = Eggs.laid, fill=Treatment))+  
 
 scale_fill_manual(values=pal)
 
-egghatch14$Prophatch <- egghatch14$Eggs.hatched/egghatch14$Eggs.laid ### generates three infinite values that need to be replaced with zero
+egghatch14$Prophatch <- egghatch14$Eggs.hatched/egghatch14$Eggs.laid ### generates three infinite values that need to be replaced with zeros
+
 is.nan.data.frame <- function(x)
     do.call(cbind, lapply(x, is.nan)) ###function to find and replace is.nan
 
@@ -411,7 +413,10 @@ censor.shape="",
 
 )+
      guides(color = guide_legend(nrow=2, keywidth = 2, keyheight = 1.8,override.aes = list(shape = NA)))
+```
 
+```{r}
+###custom figure dimensions
 
 tiff("Figure5.tiff", height = 4.09, width = 7.4, units = 'in', 
      compression = "lzw", res = 1200)
@@ -466,20 +471,9 @@ ggcoxdiagnostics(lifespan2,
 
 
 
-
 ```{r}
+###qPCR dataset
 
-### uses beeswarm and viridis colours
-
-    
-ggplot(data=egghatch, aes(x = Treatment, y = Eggs.laid, color=Treatment)) +geom_sina(stat="sina", position="dodge", kernel="gaussian", method="density", aes(colour=Treatment))+theme(legend.position = "none")+stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.7,size=0.3)+theme(legend.position="none")+theme(text=element_text(size=22))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))
-```
-
-
-
-
-
-```{r}
 expression=read.csv("Raw_qPCR.csv")
 
 p <- expression %>%

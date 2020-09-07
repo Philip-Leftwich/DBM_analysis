@@ -241,7 +241,7 @@ fit <- survfit(Surv(Days.post.eclosion,Shaking.effect)
 ###strata lines
 
 
-Figure2=ggsurvplot(fit, data = data3_double_only,
+Figure3=ggsurvplot(fit, data = data3_double_only,
  pval = FALSE,tables.theme = clean_theme(),
  fun="event",
  risk.table = TRUE,
@@ -251,9 +251,9 @@ Figure2=ggsurvplot(fit, data = data3_double_only,
  break.y.by=c(0.2),
  break.x.by=c(1),
  conf.int = FALSE,
- font.x=18,
- font.y=18,
- font.tickslab=16,
+ font.x=12,
+ font.y=12,
+ font.tickslab=12,
  
  xlab="Days post eclosion", ### change to time in days
  ylab="Cumulative proportion shaking",
@@ -261,9 +261,9 @@ risk.table.y.text = FALSE,###no text for risk table
  risk.table.title="Number not shaking",
 legend.labs=c("Hr5/ie1>AaHIT Female", "Hr5/ie1>AaHIT Male","Op/ie2>AaHIT Female","Op/ie2>AaHIT Male"),
 palette= "npg",
-size=1.2,
-font.legend=list(face="italic",size=16),
-fontsize=8,
+size=1,
+font.legend=list(face="italic",size=8),
+fontsize=4,
 censor.shape=""
 ###Darjeeling 2
 )+
@@ -271,11 +271,22 @@ censor.shape=""
 
 
 ###Only works if remove risk.table.y.text=False
-Figure2$table <- Figure2$table +theme(axis.text.y = element_text(hjust=0,margin = margin(b = 0.5),face="italic", size="16"))
+###Figure3$table <- Figure3table +theme(axis.text.y = element_text(hjust=0,margin = margin(b = 0.5),face="italic", size="16"))
 
-Figure2
+Figure3
+
+```
+
+```{r}
+tiff("Figure3.tiff", height = 4.09, width = 7.4, units = 'in', 
+     compression = "lzw", res = 1200)
+Figure3
+dev.off()
 
 ```  
+
+
+
   
 ```{r}
 ###cox's proportional hazards fit
@@ -322,8 +333,6 @@ hatchrate=cbind(egghatch14$Eggs.hatched,egghatch14$Eggs.unhatched)
 ```{r}
 ###overdispersion residual deviance/df - should be close to 1 if good (0.8-1.2) 388/51 = overdispersed
 
-
-
 mod1=glm(hatchrate~Treatment,data=egghatch14,quasibinomial)
 summary(mod1)
 rsquared(mod1)
@@ -349,16 +358,25 @@ pal=c("#3B9AB2","#EBCC2A")
 
 library(ggpol)
  
-p8=ggplot(data=egghatch, aes(x = Treatment, y = Eggs.laid, fill=Treatment))+     theme(legend.position="none")+theme(text=element_text(size=22))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+geom_boxjitter(jitter.color=NA,jitter.shape=21, outlier.shape = NA)+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+labs(y="Number of eggs laid\n", x="")+
+p8=ggplot(data=egghatch14, aes(x = Treatment, y = Eggs.laid, fill=Treatment))+     theme(legend.position="none")+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+geom_boxjitter(jitter.color=NA,jitter.shape=21, outlier.shape = NA)+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+labs(y="Number of eggs laid\n", x="")+
 
 scale_fill_manual(values=pal)
-  
-p9=ggplot(data=egghatch, aes(x = Treatment, y = (Eggs.hatched/Eggs.laid), fill=Treatment))+     theme(legend.position="none")+theme(text=element_text(size=22))+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+geom_boxjitter(jitter.color=NA,jitter.shape=21, outlier.shape = NA)+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+labs(y="Proportion of eggs hatched\n", x="")+
+
+egghatch14$Prophatch <- egghatch14$Eggs.hatched/egghatch14$Eggs.laid ### generates three infinite values that need to be replaced with zero
+is.nan.data.frame <- function(x)
+    do.call(cbind, lapply(x, is.nan)) ###function to find and replace is.nan
+
+egghatch14$Prophatch[is.nan(egghatch14$Prophatch)] <- 0 ### replace nan with 0
+
+p9=ggplot(data=egghatch14, aes(x = Treatment, y = Prophatch, fill=Treatment))+     theme(legend.position="none")+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+geom_boxjitter(jitter.color=NA,jitter.shape=21, outlier.shape = NA)+theme(axis.text.x = element_text(angle = 60, hjust =1))+theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+labs(y="Proportion of eggs hatched\n", x="")+
 
 scale_fill_manual(values=pal)
 library(patchwork)
-(p8|p9) ###using patchwork to easily arrange plots
+combine <- (p8|p9) ###using patchwork to easily arrange plots
   
+
+ggsave ("Figure6test.tiff", plot=combine, dpi=1200, compression='lzw', units="in", width=3.5, height=3.5)
+
 ```
 
 
@@ -378,25 +396,34 @@ Figure5=ggsurvplot(lifespan, data = longevity,
  break.x.by=c(5),
  break.y.by=c(0.2),
  conf.int = FALSE,
- font.x=18,
- font.y=18,
- font.tickslab=16,
+ font.x=12,
+ font.y=12,
+ font.tickslab=12,
   risk.table.title="Number alive",
  xlab="Days post eclosion", ### change to time in days
  risk.table.y.text = FALSE, ###no text for risk table,
 legend.labs=c("Female, Hr5/ie1>AaHIT, off-tet", "Male, Hr5/ie1>AaHIT, off-tet", "Female, Hr5/ie1>AaHIT, on-tet","Male, Hr5/ie1>AaHIT, on-tet"),
 palette=c("#FF0000", "#00A08A", "#F2AD00","#5BBCD6"),
-size=1.2,
-font.legend=list(face="italic",size=16),
-fontsize=8,
+size=0.8,
+font.legend=list(face="italic",size=8),
+fontsize=4,
 censor.shape="",
 
 )+
-     guides(color = guide_legend(keywidth = 2, keyheight = 1.8,override.aes = list(shape = NA)))
+     guides(color = guide_legend(nrow=2, keywidth = 2, keyheight = 1.8,override.aes = list(shape = NA)))
+
+
+tiff("Figure5.tiff", height = 4.09, width = 7.4, units = 'in', 
+     compression = "lzw", res = 1200)
+Figure5
+dev.off()
+
+
+```
 
 
 
-
+```{r}
 
 ###cox's proportional hazards fit
 
@@ -459,27 +486,29 @@ p <- expression %>%
   mutate(life_stage = fct_relevel(life_stage, 
             "L2","L4","Pupae","3DPE"))
 plot <- ggplot(aes(x = life_stage, y = relative_quantification_values), data=p)+ 
-geom_sina(stat="sina", position="dodge", kernel="gaussian", method="density", size=2, aes())+theme(legend.position = "none")+
+geom_sina(stat="sina", position="dodge", kernel="gaussian", method="density", aes())+theme(legend.position = "none")+
   stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.5,size=0.2)+
   theme(legend.position="none")+
-  theme(text=element_text(size=22))+
   theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
   theme(axis.text.x = element_text(angle = 60, hjust =1))+
   theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
-  labs(y="Normalized Relative Quantity \n (NRQ)", x="")+
-  annotate("text", size=5, label = "a", x = 1, y = 2.5)+
-  annotate("text", size=5, label = "ab", x = 2, y = 2.5)+
-  annotate("text", size=5, label = "ab", x = 3, y = 2.5)+
-  annotate("text", size=5, label = "bc", x = 4, y = 2.5)+
-  theme_cowplot()
+  labs(y="Normalized Relative Quantity \n (NRQ)", x="", size=0.5)+
+  annotate("text", size=2, label = "a", x = 1, y = 2.5)+
+  annotate("text", size=2, label = "ab", x = 2, y = 2.5)+
+  annotate("text", size=2, label = "ab", x = 3, y = 2.5)+
+  annotate("text", size=2, label = "bc", x = 4, y = 2.5)+
+theme_classic(base_size=6)
   
-
+tiff("Figure4.tiff", height = 2, width = 3.5, units = 'in', 
+     compression = "lzw", res = 1200)
+plot
+dev.off()
 
 m1 <- lm(rank(relative_quantification_values)~life_stage, data=p)
 m2 <- glht(m1, linfct=mcp(life_stage="Tukey"))
 
 library(sjPlot)
-tab_model(m1)
+tab_model(m1, file="table.html")
 
 ```
 

@@ -506,4 +506,27 @@ tab_model(m1, file="table.html")
 
 ```
 
+```{r}
+geom_data <- read_csv("GEOM_MEAN.csv")
+geom_data <- na.omit(geom_data)
+
+pal=c("#3B9AB2","#EBCC2A")
+
+p <-geom_data %>%
+  mutate(SAMPLE = fct_relevel(SAMPLE, 
+            "L2","L4","Pupae","1 DPE","2 DPE","3 DPE","4 DPE")) %>%
+  
+  ggplot(aes(x=SAMPLE, y=MEAN, fill=TET))+
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=MEAN-CI, ymax=MEAN+CI), width=0.2, position=position_dodge(0.9))+
+theme(legend.position="none")+
+  theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  theme(axis.text.x = element_text(angle = 60, hjust =1))+
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+ scale_fill_manual(values=pal)+
+  labs(y="NRQ (± CI)", x="")
+
+ 
+
+```
 

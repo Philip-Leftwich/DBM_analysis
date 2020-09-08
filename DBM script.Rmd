@@ -375,7 +375,10 @@ p9=ggplot(data=egghatch14, aes(x = Treatment, y = Prophatch, fill=Treatment))+  
 scale_fill_manual(values=pal)
 library(patchwork)
 combine <- (p8|p9) ###using patchwork to easily arrange plots
-  
+
+```  
+
+```{r}
 
 ggsave ("Figure6test.tiff", plot=combine, dpi=1200, compression='lzw', units="in", width=3.5, height=3.5)
 
@@ -506,4 +509,46 @@ tab_model(m1, file="table.html")
 
 ```
 
+```{r}
+geom_data <- read_csv("GEOM_MEAN.csv")
+geom_data <- na.omit(geom_data)
 
+pal=c("#3B9AB2","#EBCC2A")
+
+p <-geom_data %>%
+  mutate(SAMPLE = fct_relevel(SAMPLE, 
+            "L2","L4","Pupae","1 DPE","2 DPE","3 DPE","4 DPE")) %>%
+  mutate(TET=fct_relevel(TET, "ON-TET","OFF-TET"))%>%
+  
+  ggplot(aes(x=SAMPLE, y=MEAN, fill=TET))+
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=MEAN-CI, ymax=MEAN+CI), width=0.2, position=position_dodge(0.9))+
+  theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(), panel.background=element_blank())+
+  theme(axis.line.x = element_line(color="black", size = 1),axis.line.y = element_line(color="black", size = 1))+
+ scale_fill_manual(values=pal)+
+  labs(y="NRQ (± 95% CI)", x="")+
+    theme(axis.text.x = element_text(angle = 60, hjust =1))+
+  annotate("text", size=2, label = "a", x = 0.75, y = 0.4)+
+  annotate("text", size=2, label = "a", x = 1.22, y = 0.34)+
+    annotate("text", size=2, label = "b", x = 1.75, y = 0.59)+
+  annotate("text", size=2, label = "bc", x = 2.22, y = 0.7)+
+    annotate("text", size=2, label = "a", x = 2.75, y = 0.29)+
+  annotate("text", size=2, label = "abc", x = 3.22, y = 0.72)+
+          annotate("text", size=2, label = "b", x = 3.75, y = 0.57)+
+  annotate("text", size=2, label = "cd", x = 4.22, y = 1.29)+
+                annotate("text", size=2, label = "ab", x = 4.75, y = 0.55)+
+  annotate("text", size=2, label = "de", x = 5.22, y = 1.96)+
+                 annotate("text", size=2, label = "c", x = 5.75, y = 0.84)+
+  annotate("text", size=2, label = "e", x = 6.22, y = 2.48)+
+                   annotate("text", size=2, label = "ab", x = 6.75, y = 0.57)+
+  annotate("text", size=2, label = "cd", x = 7.22, y = 0.92)
+
+```
+
+```{r}
+tiff("alternative_Figure5.tiff", height = 3.5, width = 3.5, units = 'in', 
+     compression = "lzw", res = 1200)
+p
+dev.off()
+
+````

@@ -262,12 +262,12 @@ risk.table.y.text = FALSE,###no text for risk table
 legend.labs=c("Hr5/ie1>AaHIT Female", "Hr5/ie1>AaHIT Male","Op/ie2>AaHIT Female","Op/ie2>AaHIT Male"),
 palette= "npg",
 size=1,
-font.legend=list(face="italic",size=8),
+font.legend=list(face="italic",size=10),
 fontsize=4,
 censor.shape=""
 ###Darjeeling 2
 )+
-   guides(color = guide_legend(keywidth = 2, keyheight = 1.8,override.aes = list(shape = NA)))
+   guides(color = guide_legend(nrow=2, keywidth = 2, keyheight = 1.8,override.aes = list(shape = NA)))
 
 
 ###Only works if remove risk.table.y.text=False
@@ -410,7 +410,7 @@ Figure5=ggsurvplot(lifespan, data = longevity,
 legend.labs=c("Female, Hr5/ie1>AaHIT, off-tet", "Male, Hr5/ie1>AaHIT, off-tet", "Female, Hr5/ie1>AaHIT, on-tet","Male, Hr5/ie1>AaHIT, on-tet"),
 palette=c("#FF0000", "#00A08A", "#F2AD00","#5BBCD6"),
 size=0.8,
-font.legend=list(face="italic",size=8),
+font.legend=list(face="italic",size=10),
 fontsize=4,
 censor.shape="",
 

@@ -214,7 +214,7 @@ Figure1
 ### off tet double hets comparing the two promoters and sex differences 
 ### have not added all the Hr5 data for wt, Green and Red! 
 
-data3=read.csv("../Data/Book2.csv")
+data3=read.csv("Data/Book2.csv")
 
 str(data3)
 data3$Line=as.factor(data3$Line)
@@ -251,9 +251,9 @@ Figure3=ggsurvplot(fit, data = data3_double_only,
  break.y.by=c(0.2),
  break.x.by=c(1),
  conf.int = FALSE,
- font.x=10,
- font.y=10,
- font.tickslab=10,
+ font.x=12,
+ font.y=12,
+ font.tickslab=12,
  
  xlab="Days post eclosion", ### change to time in days
  ylab="Cumulative proportion shaking",
@@ -262,8 +262,8 @@ risk.table.y.text = FALSE,###no text for risk table
 legend.labs=c("Hr5/ie1>AaHIT Female", "Hr5/ie1>AaHIT Male","Op/ie2>AaHIT Female","Op/ie2>AaHIT Male"),
 palette= "npg",
 size=1,
-font.legend=list(face="italic",size=8),
-fontsize=3,
+font.legend=list(face="italic",size=10),
+fontsize=4,
 censor.shape=""
 ###Darjeeling 2
 )+
@@ -279,7 +279,7 @@ Figure3
 
 ```{r}
 ### export as tiff file to manuscript size and dpi requirements
-tiff("Figure3.tiff", height = 3.68, width = 6.7, units = 'in', 
+tiff("Figure3.tiff", height = 4.09, width = 7.4, units = 'in', 
      compression = "lzw", res = 1200)
 Figure3
 dev.off()
@@ -315,7 +315,7 @@ ftest
 ```{r}
 ###datasheet for Hr5 egg laying
 
-egghatch=read.csv("../Data/egg_hatch.csv")
+egghatch=read.csv("Data/egg_hatch.csv")
 egghatch
 str(egghatch)
 egghatch$Eggs.hatched=(egghatch$Eggs.laid-egghatch$Eggs.unhatched)
@@ -386,7 +386,7 @@ ggsave ("Figure6test.tiff", plot=combine, dpi=1200, compression='lzw', units="in
 
 
 ```{r}
-longevity=read.csv("../Data/longevity.csv")
+longevity=read.csv("Data/longevity.csv")
 longevity
 str(longevity)
 
@@ -401,17 +401,17 @@ Figure5=ggsurvplot(lifespan, data = longevity,
  break.x.by=c(5),
  break.y.by=c(0.2),
  conf.int = FALSE,
- font.x=10,
- font.y=10,
- font.tickslab=10,
+ font.x=12,
+ font.y=12,
+ font.tickslab=12,
   risk.table.title="Number alive",
  xlab="Days post eclosion", ### change to time in days
  risk.table.y.text = FALSE, ###no text for risk table,
 legend.labs=c("Female, Hr5/ie1>AaHIT, off-tet", "Male, Hr5/ie1>AaHIT, off-tet", "Female, Hr5/ie1>AaHIT, on-tet","Male, Hr5/ie1>AaHIT, on-tet"),
 palette=c("#FF0000", "#00A08A", "#F2AD00","#5BBCD6"),
 size=0.8,
-font.legend=list(face="italic",size=8),
-fontsize=3,
+font.legend=list(face="italic",size=10),
+fontsize=4,
 censor.shape="",
 
 )+
@@ -421,7 +421,7 @@ censor.shape="",
 ```{r}
 ###custom figure dimensions
 
-tiff("Figure5.tiff", height = 3.68, width = 6.7, units = 'in', 
+tiff("Figure5.tiff", height = 4.09, width = 7.4, units = 'in', 
      compression = "lzw", res = 1200)
 Figure5
 dev.off()
@@ -474,7 +474,7 @@ ggcoxdiagnostics(lifespan2,
 
 
 ```{r}
-geom_data <- read_csv("../Data/GEOM_MEAN.csv")
+geom_data <- read_csv("Data/GEOM_MEAN.csv")
 geom_data <- na.omit(geom_data)
 
 pal=c("#3B9AB2","#EBCC2A")

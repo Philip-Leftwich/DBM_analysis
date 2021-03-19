@@ -292,6 +292,8 @@ dev.off()
 ```{r}
 ###cox's proportional hazards fit
 
+data3_double_only$Line <- relevel(data3_double_only$Line, levels="HR5IE1", "OPIE2")
+
 fit1 <- coxph(Surv(Days.post.eclosion, Shaking.effect) ~ Line+Sex, data = data3_double_only)
 summary(fit1)
 ### confidence interval cox's p hazards figure
